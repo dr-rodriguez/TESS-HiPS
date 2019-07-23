@@ -16,6 +16,7 @@ from astrocut.utils.wcs_fitting import fit_wcs_from_points
 
 def my_cutout(img, xmin, xmax, ymin, ymax):
     img_cutout = img[1].data[xmin:xmax, ymin:ymax]
+    # img_cutout = img[1].data[ymin:ymax, xmin:xmax]
     uncert_cutout = img[2].data[xmin:xmax, ymin:ymax]
 
     # Making the aperture array
@@ -32,8 +33,8 @@ def my_cutout_wcs(cutout_wcs, cutout_shape, cut):
 
     # Getting the fit WCS
     linear_wcs = fit_wcs_from_points(pix_inds[:, 0], pix_inds[:, 1], world_pix, mode='wcs',
-                                     proj_point='center')
-                                     # proj_point=[cut.center_coord.data.lon.value, cut.center_coord.data.lat.value])
+                                     # proj_point='center')
+                                     proj_point=[cut.center_coord.data.lon.value, cut.center_coord.data.lat.value])
 
     cut.cutout_wcs = linear_wcs
 
@@ -49,18 +50,22 @@ def my_cutout_wcs(cutout_wcs, cutout_shape, cut):
     return (dists.max(), sigma)
 
 
-def get_limits(shape=(2078, 2136), width=100, start=0):
+def get_limits(shape=(2048, 2048), width=100, start=(44,0)):
     limit_list = []
 
-    xrange = np.arange(start, shape[1], width)
-    # xrange = np.append(xrange, shape[1])
-
-    yrange = np.arange(start, shape[0], width)
-    # yrange = np.append(yrange, shape[0])
+    xrange = np.arange(start[1], shape[1], width)
+    yrange = np.arange(start[0], shape[0], width)
 
     for x in xrange:
         for y in yrange:
-            limit_list.append(np.array([[y, y+width], [x, x+width]]))
+            y2 = y+width
+            if y2 > shape[1]:
+                y2 = shape[1]
+            x2 = x + width
+            if x2 > shape[0]:
+                x2 = shape[0]
+
+            limit_list.append(np.array([[y, y2], [x, x2]]))
 
     return limit_list
 
@@ -140,10 +145,8 @@ def make_my_coutout(FILENAME, OUTNAME, limits, output_path='Cutouts', verbose=Tr
     cube.close()
 
 
-FILENAME = 'Data/tess2018206192942-s0001-1-1-0120-s_ffic.fits'
-verbose = True
-
 # Single run
+FILENAME = 'Data/tess2018206192942-s0001-1-1-0120-s_ffic.fits'
 OUTNAME = 'tess_s0001-1-1_0-100_0-100.fits'
 ymin, ymax = 0, 100
 xmin, xmax = 0, 100
@@ -151,11 +154,12 @@ limits = np.array([[ymin, ymax], [xmin, xmax]])
 make_my_coutout(FILENAME, OUTNAME, limits, output_path='Cutouts', verbose=True, overwrite=False)
 
 # Another single run
-ymin, ymax = 400, 500
-xmin, xmax = 600, 700
+FILENAME = 'Data/tess2018206192942-s0001-1-1-0120-s_ffic.fits'
+ymin, ymax = 0, 100
+xmin, xmax = 44, 144
 limits = np.array([[ymin, ymax], [xmin, xmax]])
 OUTNAME = 'tess_s0001-1-1_{}-{}_{}-{}.fits'.format(limits[0][0], limits[0][1], limits[1][0], limits[1][1])
-make_my_coutout(FILENAME, OUTNAME, limits, output_path='Cutouts', verbose=True, overwrite=False)
+make_my_coutout(FILENAME, OUTNAME, limits, output_path='Cutouts', verbose=True, overwrite=True)
 
 # Large max dist example
 """
@@ -191,7 +195,7 @@ for cam in (1,2,3,4):
         # output_path = 'Cutouts-{}-{}'.format(cam, ccd)
         output_path = 'Cutouts'
         # full_limits = get_limits(shape=(2000, 2100), width=100, start=50)
-        full_limits = get_limits(shape=(2078, 2136), width=100)
+        full_limits = get_limits()
         for i, limits in enumerate(full_limits):
             OUTNAME = 'tess_{}-{}-{}_{:04d}-{:04d}_{:04d}-{:04d}.fits'.format(sector, cam, ccd, limits[0][0],
                                                                               limits[0][1], limits[1][0], limits[1][1])
