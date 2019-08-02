@@ -17,12 +17,16 @@ from astrocut.utils.wcs_fitting import fit_wcs_from_points
 def my_cutout(img, xmin, xmax, ymin, ymax):
     img_cutout = img[1].data[xmin:xmax, ymin:ymax]
     # img_cutout = img[1].data[ymin:ymax, xmin:xmax]
-    uncert_cutout = img[2].data[xmin:xmax, ymin:ymax]
+    # uncert_cutout = img[2].data[xmin:xmax, ymin:ymax]
+
+    # Apply scaling
+    img_cutout[img_cutout < 0] = 0.
+    img_cutout = np.sqrt(img_cutout)
 
     # Making the aperture array
     aperture = np.ones((xmax - xmin, ymax - ymin), dtype=np.int32)
 
-    return img_cutout, uncert_cutout, aperture
+    return img_cutout, None, aperture
 
 
 def my_cutout_wcs(cutout_wcs, cutout_shape, cut):
@@ -50,7 +54,9 @@ def my_cutout_wcs(cutout_wcs, cutout_shape, cut):
     return (dists.max(), sigma)
 
 
-def get_limits(shape=(2048, 2048), width=100, start=(44,0)):
+def get_limits(shape=(2048, 2048), width=100, start=(44, 0)):
+    # After testing, X and Y need to be flipped here (2092, 2048) becomes (2048, 2092)
+
     limit_list = []
 
     xrange = np.arange(start[1], shape[1], width)
@@ -154,12 +160,12 @@ limits = np.array([[ymin, ymax], [xmin, xmax]])
 make_my_coutout(FILENAME, OUTNAME, limits, output_path='Cutouts', verbose=True, overwrite=False)
 
 # Another single run
-FILENAME = 'Data/tess2018206192942-s0001-1-1-0120-s_ffic.fits'
+FILENAME = 'origData/tess2018206192942-s0001-1-1-0120-s_ffic.fits'
 ymin, ymax = 0, 100
 xmin, xmax = 44, 144
 limits = np.array([[ymin, ymax], [xmin, xmax]])
-OUTNAME = 'tess_s0001-1-1_{}-{}_{}-{}.fits'.format(limits[0][0], limits[0][1], limits[1][0], limits[1][1])
-make_my_coutout(FILENAME, OUTNAME, limits, output_path='Cutouts', verbose=True, overwrite=True)
+OUTNAME = 'TEST_s0001-1-1_{}-{}_{}-{}.fits'.format(limits[0][0], limits[0][1], limits[1][0], limits[1][1])
+make_my_coutout(FILENAME, OUTNAME, limits, output_path='.', verbose=True, overwrite=True)
 
 # Large max dist example
 """
@@ -171,12 +177,12 @@ Maximum distance between approximate and true location: 1356.142458902589 arcsec
 Error in approximate WCS (sigma): 15.987921128646978
 ERROR: Too max distance large for tess_s0001-4-4_0000-0100_0100-0200.fits (1356.142458902589 arcsec)
 """
-FILENAME = 'Data/tess2018206192942-s0001-4-4-0120-s_ffic.fits'
-ymin,ymax = 0, 100
-xmin,xmax = 100, 200
+FILENAME = 'origData/tess2018206192942-s0001-4-4-0120-s_ffic.fits'
+ymin,ymax = 44, 144
+xmin,xmax = 0, 100
 limits = np.array([[ymin, ymax], [xmin, xmax]])
 OUTNAME = 'TEST_s0001-4-4_{}-{}_{}-{}.fits'.format(limits[0][0], limits[0][1], limits[1][0], limits[1][1])
-make_my_coutout(FILENAME, OUTNAME, limits, output_path='', verbose=True, overwrite=True)
+make_my_coutout(FILENAME, OUTNAME, limits, output_path='.', verbose=True, overwrite=True)
 
 # Loop over grid
 # full_limits = get_limits(shape=(2078, 2136), width=100)
@@ -191,7 +197,8 @@ for i, limits in enumerate(full_limits):
 sector = 's0001'
 for cam in (1,2,3,4):
     for ccd in (1,2,3,4):
-        FILENAME = 'Data/tess2018206192942-{}-{}-{}-0120-s_ffic.fits'.format(sector, cam, ccd)
+        # FILENAME = 'Data/tess2018206192942-{}-{}-{}-0120-s_ffic.fits'.format(sector, cam, ccd)
+        FILENAME = 'Data/tess-{}-{}-{}-median.fits'.format(sector, cam, ccd)
         # output_path = 'Cutouts-{}-{}'.format(cam, ccd)
         output_path = 'Cutouts'
         # full_limits = get_limits(shape=(2000, 2100), width=100, start=50)
