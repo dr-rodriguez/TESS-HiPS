@@ -178,20 +178,11 @@ Error in approximate WCS (sigma): 15.987921128646978
 ERROR: Too max distance large for tess_s0001-4-4_0000-0100_0100-0200.fits (1356.142458902589 arcsec)
 """
 FILENAME = 'origData/tess2018206192942-s0001-4-4-0120-s_ffic.fits'
-ymin,ymax = 44, 144
-xmin,xmax = 0, 100
+ymin,ymax = 0, 100
+xmin,xmax = 100, 200
 limits = np.array([[ymin, ymax], [xmin, xmax]])
 OUTNAME = 'TEST_s0001-4-4_{}-{}_{}-{}.fits'.format(limits[0][0], limits[0][1], limits[1][0], limits[1][1])
 make_my_coutout(FILENAME, OUTNAME, limits, output_path='.', verbose=True, overwrite=True)
-
-# Loop over grid
-# full_limits = get_limits(shape=(2078, 2136), width=100)
-full_limits = get_limits(shape=(2000, 2100), width=100, start=50)
-for i, limits in enumerate(full_limits):
-    OUTNAME = 'tess_s0001-1-1_{:04d}-{:04d}_{:04d}-{:04d}.fits'.format(limits[0][0], limits[0][1], limits[1][0], limits[1][1])
-    print(limits, OUTNAME)
-    make_my_coutout(FILENAME, OUTNAME, limits, output_path='Cutouts', verbose=True, overwrite=False)
-    # if i > 10: break
 
 # Loop over everything
 sector = 's0001'
