@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
-#java -Xmx16g -jar AladinBeta.jar -hipsgen -live maxthread=20 in=Cutouts out=TESS-S1-HiPS creator_did=ivo://STScI/TESS
-# Removing live so fits aren't saved
-java -Xmx16g -jar AladinBeta.jar -hipsgen maxthread=20 in=Cutouts out=TESS-HiPS creator_did=ivo://STScI/TESS 
-#hips_pixel_bitpix=16 hips_pixel_cut='100 8500 sqrt'
+# # Removing live so fits aren't saved
+# java -Xmx16g -jar AladinBeta.jar -hipsgen maxthread=20 in=Cutouts out=TESS-HiPS creator_did=ivo://STScI/TESS 
+#hips_pixel_bitpix=16 hips_pixel_cut='100 8500 sqrt' (not needed with new scaling in cuts)
 
-# Add images to it
-# java -Xmx16g -jar AladinBeta.jar -hipsgen -live maxthread=20 in=Cutouts out=TESS-S1-HiPS APPEND
+# Live version that allows appending
+java -Xmx16g -jar AladinBeta.jar -hipsgen -live maxthread=20 in="Cutouts/s0001" out="./TESS-HiPS" creator_did=ivo://STScI/TESS
+# Add more sectors to it
+java -Xmx16g -jar AladinBeta.jar -hipsgen -live maxthread=20 in="Cutouts/s0002" out="./TESS-HiPS" creator_did=ivo://STScI/TESS APPEND
+java -Xmx16g -jar AladinBeta.jar -hipsgen -live maxthread=20 in="Cutouts/s0003" out="./TESS-HiPS" creator_did=ivo://STScI/TESS APPEND
+java -Xmx16g -jar AladinBeta.jar -hipsgen -live maxthread=20 in="Cutouts/s0004" out="./TESS-HiPS" creator_did=ivo://STScI/TESS APPEND

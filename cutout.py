@@ -185,13 +185,15 @@ OUTNAME = 'TEST_s0001-4-4_{}-{}_{}-{}.fits'.format(limits[0][0], limits[0][1], l
 make_my_coutout(FILENAME, OUTNAME, limits, output_path='.', verbose=True, overwrite=True)
 
 # Loop over everything
-sector = 's0001'
+sector = 's0004'
 for cam in (1,2,3,4):
     for ccd in (1,2,3,4):
         # FILENAME = 'Data/tess2018206192942-{}-{}-{}-0120-s_ffic.fits'.format(sector, cam, ccd)
         FILENAME = 'Data/tess-{}-{}-{}-median.fits'.format(sector, cam, ccd)
+        if not os.path.exists(FILENAME):
+            continue
         # output_path = 'Cutouts-{}-{}'.format(cam, ccd)
-        output_path = 'Cutouts'
+        output_path = os.path.join('Cutouts', sector)
         # full_limits = get_limits(shape=(2000, 2100), width=100, start=50)
         full_limits = get_limits()
         for i, limits in enumerate(full_limits):
